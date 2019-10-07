@@ -2,6 +2,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Commented out instance creation which was part of the Terraform Workspace example.  To create a new workspace, type terraform workspace new [workspace name].  to switch between workspaces, type terraform workspace select [workspace name]
+# resource "aws_instance" "example" {
+#   ami = "ami-0b69ea66ff7391e80"
+#   instance_type = "t2.micro"
+# }
+
 resource "aws_s3_bucket" "terraform-state" {
   bucket = "soco-remote-state"
 
@@ -39,7 +45,7 @@ resource "aws_dynamodb_table" "terraform-locks" {
 terraform {
     backend "s3" {
         bucket = "soco-remote-state"
-        key = "global/s3/terraform.tfstate"
+        key = "workspaces-example/terraform.tfstate"
         region = "us-east-1"
         dynamodb_table = "terraform-up-and-running-locks"
     # Setting encrrypt to "true" ensures that your TFSTATE file will be encrypted on disk when stored in s3.  Although we've added encryption to the bucket itself, this is an added layer of security to ensure that the file is always encrypted.    
