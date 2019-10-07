@@ -55,4 +55,29 @@ resource "aws_security_group" "web-traffic" {
   }
 }
 
+resource "aws_lb" "example-loadbalancer" {
+  name = "terraform-asg-example"
+  load_balancer_type = "application"
+  subnets = data.aws_subnet_ids.default.ids
+}
+
+resource "aws_alb_listener" "http" {
+  load_balancer_arn = aws.lb.example-loadbalancer.arn
+  port = 80
+  protocol = "HTTP"
+  # By default, retun a simple 404 page
+  default_action {
+      type = "fixed-response"
+      fixed-response {
+          content-message = "text/plain"
+          message-body = "404: Page Not Found"
+          status-code = 404
+      }
+  }
+}
+
+
+
+
+
 
