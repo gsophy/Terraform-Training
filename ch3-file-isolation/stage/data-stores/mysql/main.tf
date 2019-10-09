@@ -14,3 +14,13 @@ resource "aws_db_instance" "example" {
   password = var.db_password
 }
 
+terraform {
+    backend "s3" {
+        bucket = "soco-remote-state"
+        key = "stage/data-stores/mysql/terraform-tfstate"
+        region = "us-east-1"
+
+        dynamodb_table = "terraform-up-and-running-locks"
+        encrypt = true
+    }
+}
