@@ -9,6 +9,8 @@ resource "aws_db_instance" "example" {
   instance_class = "db.t2.micro"
   name = "example_database"
   username = "admin"
+  skip_final_snapshot = true
+  final_snapshot_identifier = "foo"
 
 # How should we set the password?
   password = var.db_password

@@ -2,35 +2,46 @@ provider "aws" {
   region = "us-east-1"
 }
 
-data aws_vpc "default" {
+data "aws_vpc" "default" {
     default = true
 }
 
+# data "terraform_remote_state" "db" {
+#     backend = "s3"
+
+#     config = {
+#         bucket = "soco-remote-state"
+#         key = "stage/data-stores/mysql/terraform-tfstate"
+#         region = "us-east-1"
+#     }
+# }
 data "aws_subnet_ids" "default" {
     vpc_id = data.aws_vpc.default.id
 }
-## Add terraform remote state to web cluster deployment
-terraform {
-    backend "s3" {
-        bucket = "soco-remote-state"
-        key = "workspaces-example/terraform.tfstate"
-        region = "us-east-1"
-        dynamodb_table = "terraform-up-and-running-locks"
-    # Setting encrrypt to "true" ensures that your TFSTATE file will be encrypted on disk when stored in s3.  Although we've added encryption to the bucket itself, this is an added layer of security to ensure that the file is always encrypted.    
-        encrypt = true
-    }
-}
+# ## Add terraform remote state to web cluster deployment
+# terraform {
+#     backend "s3" {
+#         bucket = "soco-remote-state"
+#         key = "workspaces-example/terraform.tfstate"
+#         region = "us-east-1"
+#         dynamodb_table = "terraform-up-and-running-locks"
+#     # Setting encrrypt to "true" ensures that your TFSTATE file will be encrypted on disk when stored in s3.  Although we've added encryption to the bucket itself, this is an added layer of security to ensure that the file is always encrypted.    
+#         encrypt = true
+#     }
+# }
 
 resource "aws_launch_configuration" "example-launch-config" {
   image_id = "ami-04b9e92b5572fa0d1"
   instance_type = "t2.micro"
   security_groups = [aws_security_group.web-traffic.id]
 
-  user_data = <<-EOF
-                #!/bin/bash
-                echo "Hello, World" > index.html
-                nohup busybox httpd -f -p ${var.server_port} &
-                EOF
+#   user_data = <<-EOF
+#                 #!/bin/bash
+#                 echo "Hello, World" > index.html
+#                 # echo "${data.terraform_remote_state.db.outputs.address}"" > index.html
+#                 # echo "${data.terraform_remote_state.db.outputs.port}" > index.html
+#                 nohup busybox httpd -f -p ${var.server_port} &
+#                 EOF
 # Required when using a launch configuration with an autoscaling group.
 lifecycle {
     create_before_destroy = true
@@ -136,3 +147,4 @@ resource "aws_lb_listener_rule" "asg" {
       target_group_arn = aws_lb_target_group.asg.arn
   }
 }
+
